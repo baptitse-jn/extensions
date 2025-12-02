@@ -13,8 +13,29 @@ export const isWindows = platform === "win32";
  */
 export function getProcessListCommand(): string {
   if (isWindows) {
-    // Windows: Use PowerShell to get process information
-    return `powershell "Get-Process | Select-Object Id,ProcessName,CPU,WorkingSet,Path | ForEach-Object { \\"$($_.Id) $($_.ProcessName) $($_.CPU) $($_.WorkingSet) $($_.Path)\\" }"`;
+    // Windows: Use PowerShell CIM + Perf counters to get accurate CPU% and memory (KB)
+    // We output a single line per process using a '|' delimiter to avoid issues with spaces in names/paths
+    // Fields: Id|ParentPid|CPU%|MemKB|Path|ProcessName
+    return (
+      `powershell -NoProfile "` +
+      `$ErrorActionPreference='SilentlyContinue'; ` +
+      // Get basic process info (includes ParentProcessId and ExecutablePath)
+      `$procs = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name, ExecutablePath, WorkingSetSize; ` +
+      // Get formatted perf data that already includes CPU percent per process
+      `$perf = Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Select-Object IDProcess, PercentProcessorTime; ` +
+      // Build a map from PID to CPU%
+      `$map = @{}; foreach ($p in $perf) { $map[$p.IDProcess] = $p.PercentProcessorTime } ` +
+      // Emit one line per process using a safe delimiter
+      `foreach ($p in $procs) { ` +
+      `  $cpu = $map[$p.ProcessId]; ` +
+      `  if ($null -eq $cpu) { $cpu = 0 } ` +
+      `  $memKB = [int]([double]$p.WorkingSetSize / 1KB); ` +
+      `  $path = if ($p.ExecutablePath) { $p.ExecutablePath } else { '' }; ` +
+      // Replace backslashes to keep consistency with POSIX-style parsing and icons downstream
+      `  $path = $path -replace '\\\\','/'; ` +
+         `  "$($p.ProcessId)|$($p.ParentProcessId)|$cpu|$memKB|$path|$($p.Name)" ` +
+      `}"`
+    );
   } else {
     // macOS: Use ps command
     return "ps -eo pid,ppid,pcpu,rss,comm";
@@ -40,19 +61,21 @@ export function parseProcessLine(line: string): Partial<Process> | null {
   if (!line.trim()) return null;
 
   if (isWindows) {
-    // Windows PowerShell output format: "PID ProcessName CPU WorkingSet Path"
-    const parts = line.trim().split(/\s+/);
-    if (parts.length < 4) return null;
+    // Windows PowerShell output format (custom): Id|ParentPid|CPU%|MemKB|Path|ProcessName
+    const parts = line.split("|");
+    if (parts.length < 6) return null;
 
-    const [id, processName, cpu, mem, ...pathParts] = parts;
-    const path = pathParts.join(" ") || "";
+    const [id, ppid, cpu, memKB, path, ...nameParts] = parts;
+    const processName = nameParts.join("|").trim();
 
     return {
       id: parseInt(id) || 0,
-      pid: 0, // Parent PID not easily available in basic Windows commands
+      pid: parseInt(ppid) || 0,
+      // Already a CPU percentage from Perf counters (can exceed 100 on multi-core)
       cpu: parseFloat(cpu) || 0,
-      mem: parseInt(mem) || 0,
-      path: path,
+      // Memory is emitted in KB to match macOS rss semantics used elsewhere
+      mem: parseInt(memKB) || 0,
+      path: path?.trim() || "",
       processName: processName || "",
     };
   } else {
