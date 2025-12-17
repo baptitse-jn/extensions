@@ -1,12 +1,4 @@
-import {
-  Form,
-  ActionPanel,
-  Action,
-  showToast,
-  Toast,
-  getPreferenceValues,
-  popToRoot,
-} from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast, getPreferenceValues, popToRoot } from "@raycast/api";
 import { useState } from "react";
 
 interface Preferences {
@@ -97,12 +89,7 @@ export default function QuickCapture() {
         </ActionPanel>
       }
     >
-      <Form.TextArea
-        id="content"
-        title="Content"
-        placeholder="Write your note here..."
-        enableMarkdown
-      />
+      <Form.TextArea id="content" title="Content" placeholder="Write your note here..." enableMarkdown />
       <Form.Checkbox
         id="useAI"
         label="Use AI Processing"
