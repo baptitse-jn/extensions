@@ -1,4 +1,10 @@
-import { getSelectedText, showToast, Toast, getPreferenceValues, showHUD } from "@raycast/api";
+import {
+  getSelectedText,
+  showToast,
+  Toast,
+  getPreferenceValues,
+  showHUD,
+} from "@raycast/api";
 
 interface Preferences {
   apiKey: string;
@@ -39,7 +45,8 @@ export default async function CaptureSelection() {
     await showToast({
       style: Toast.Style.Failure,
       title: "Error",
-      message: error instanceof Error ? error.message : "Unable to capture selection",
+      message:
+        error instanceof Error ? error.message : "Unable to capture selection",
     });
   }
 }
