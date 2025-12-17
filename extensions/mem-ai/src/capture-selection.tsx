@@ -1,41 +1,45 @@
-import { getSelectedText, showHUD, showToast, Toast } from "@raycast/api";
-import { memIt, getPreferences } from "./lib/mem-api";
+import { getSelectedText, showToast, Toast, getPreferenceValues, showHUD } from "@raycast/api";
+
+interface Preferences {
+  apiKey: string;
+}
 
 export default async function CaptureSelection() {
-  // Check API key
-  const { apiKey } = getPreferences();
-  if (!apiKey) {
-    await showToast({
-      style: Toast.Style.Failure,
-      title: "API Key manquante",
-      message: "Configure ta clé API Mem dans les préférences",
-    });
-    return;
-  }
+  const { apiKey } = getPreferenceValues<Preferences>();
 
   try {
-    // Get selected text
     const selectedText = await getSelectedText();
 
     if (!selectedText || !selectedText.trim()) {
-      await showHUD("❌ Aucun texte sélectionné");
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Error",
+        message: "No text selected",
+      });
       return;
     }
 
-    await showHUD("📤 Envoi vers Mem...");
-    
-    await memIt(selectedText);
-    
-    await showHUD("✨ Sélection sauvegardée dans Mem !");
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
-    
-    // Handle specific error for no selection
-    if (errorMessage.includes("Unable to get selected text")) {
-      await showHUD("❌ Sélectionne du texte d'abord");
-      return;
+    const response = await fetch("https://api.mem.ai/v2/mem-it", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `ApiAccessToken ${apiKey}`,
+      },
+      body: JSON.stringify({
+        content: selectedText,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
     }
-    
-    await showHUD(`❌ Erreur: ${errorMessage}`);
+
+    await showHUD("✅ Selection saved to Mem");
+  } catch (error) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "Error",
+      message: error instanceof Error ? error.message : "Unable to capture selection",
+    });
   }
 }
