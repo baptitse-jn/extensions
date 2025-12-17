@@ -1,20 +1,26 @@
-import { Clipboard, showToast, Toast, getPreferenceValues, showHUD } from "@raycast/api";
+import {
+  getSelectedText,
+  showToast,
+  Toast,
+  getPreferenceValues,
+  showHUD,
+} from "@raycast/api";
 
 interface Preferences {
   apiKey: string;
 }
 
-export default async function CaptureClipboard() {
+export default async function CaptureSelection() {
   const { apiKey } = getPreferenceValues<Preferences>();
 
   try {
-    const clipboardContent = await Clipboard.readText();
+    const selectedText = await getSelectedText();
 
-    if (!clipboardContent || !clipboardContent.trim()) {
+    if (!selectedText || !selectedText.trim()) {
       await showToast({
         style: Toast.Style.Failure,
         title: "Error",
-        message: "Clipboard is empty",
+        message: "No text selected",
       });
       return;
     }
@@ -26,7 +32,7 @@ export default async function CaptureClipboard() {
         Authorization: `ApiAccessToken ${apiKey}`,
       },
       body: JSON.stringify({
-        content: clipboardContent,
+        content: selectedText,
       }),
     });
 
@@ -34,12 +40,13 @@ export default async function CaptureClipboard() {
       throw new Error(`API Error: ${response.status}`);
     }
 
-    await showHUD("✅ Clipboard saved to Mem");
+    await showHUD("✅ Selection saved to Mem");
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
       title: "Error",
-      message: error instanceof Error ? error.message : "Failed to save",
+      message:
+        error instanceof Error ? error.message : "Unable to capture selection",
     });
   }
 }
