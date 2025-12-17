@@ -27,7 +27,10 @@ export function getPreferences(): Preferences {
  * Mem It - Send content to Mem with AI processing
  * The content will be automatically organized, tagged, and structured
  */
-export async function memIt(content: string, instructions?: string): Promise<MemItResponse> {
+export async function memIt(
+  content: string,
+  instructions?: string,
+): Promise<MemItResponse> {
   const { apiKey, defaultInstructions } = getPreferences();
 
   const finalInstructions = instructions || defaultInstructions || undefined;
@@ -81,7 +84,10 @@ export async function createMem(content: string): Promise<CreateMemResponse> {
 /**
  * Append content to an existing mem
  */
-export async function appendToMem(memId: string, content: string): Promise<void> {
+export async function appendToMem(
+  memId: string,
+  content: string,
+): Promise<void> {
   const { apiKey } = getPreferences();
 
   const response = await fetch(`https://api.mem.ai/v0/mems/${memId}/append`, {
