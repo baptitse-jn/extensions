@@ -1,23 +1,30 @@
-import { createMem } from "../lib/mem-api";
+import { getPreferenceValues } from "@raycast/api";
 
-type Input = {
-  /**
-   * The content of the note to save in Mem.
-   * This can be any text: ideas, notes, information, links, etc.
-   */
+interface Preferences {
+  apiKey: string;
+}
+
+interface Input {
   content: string;
-};
+}
 
-/**
- * Create a new note in Mem.
- * Use this tool to save simple notes, ideas, or information to the user's Mem knowledge base.
- */
-export default async function tool(input: Input): Promise<string> {
-  try {
-    const result = await createMem(input.content);
-    
-    return `✅ Note créée dans Mem avec succès!\n\nContenu sauvegardé:\n"${input.content.substring(0, 100)}${input.content.length > 100 ? '...' : ''}"`;  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
-    return `❌ Erreur lors de la création de la note: ${errorMessage}`;
+export default async function createMem(input: Input) {
+  const { apiKey } = getPreferenceValues<Preferences>();
+
+  const response = await fetch("https://api.mem.ai/v0/mems", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `ApiAccessToken ${apiKey}`,
+    },
+    body: JSON.stringify({
+      content: input.content,
+    }),
+  });
+
+  if (!response.ok) {
+    return { success: false, error: `API Error: ${response.status}` };
   }
+
+  return { success: true, message: "Note created in Mem" };
 }
