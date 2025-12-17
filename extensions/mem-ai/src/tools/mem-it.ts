@@ -4,17 +4,23 @@ interface Preferences {
   apiKey: string;
 }
 
-interface Input {
+type Input = {
+  /**
+   * The content to send to Mem
+   */
   content: string;
+  /**
+   * Optional instructions for AI processing
+   */
   instructions?: string;
-}
+};
 
 interface MemItResponse {
   id?: string;
   url?: string;
 }
 
-export default async function memIt(input: Input) {
+export default async function tool(input: Input) {
   const { apiKey } = getPreferenceValues<Preferences>();
 
   const response = await fetch("https://api.mem.ai/v2/mem-it", {
