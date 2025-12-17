@@ -5,10 +5,7 @@
   "description": "Capture notes, ideas and knowledge to your Mem AI Second Brain",
   "icon": "extension-icon.png",
   "author": "baptiste-jn",
-  "categories": [
-    "Productivity",
-    "Applications"
-  ],
+  "categories": ["Productivity", "Applications"],
   "license": "MIT",
   "commands": [
     {
@@ -46,9 +43,7 @@
             "description": "The content of the note to create"
           }
         },
-        "required": [
-          "content"
-        ]
+        "required": ["content"]
       },
       "confirmation": false
     },
@@ -68,30 +63,13 @@
             "description": "Optional instructions for AI processing"
           }
         },
-        "required": [
-          "content"
-        ]
+        "required": ["content"]
       },
       "confirmation": false
     }
   ],
   "ai": {
-    "instructions": "Use this extension to save notes and information to the user's Mem AI knowledge base. Use 'create-mem' for simple notes and 'mem-it' when AI processing is needed for automatic organization.",
-    "evals": [
-      {
-        "input": "@mem Save this note: Meeting with John tomorrow at 2pm",
-        "expected": [
-          {
-            "callsTool": "mem-it"
-          }
-        ],
-        "mocks": {
-          "mem-it": {
-            "result": "success"
-          }
-        }
-      }
-    ]
+    "instructions": "Use this extension to save notes and information to the user's Mem AI knowledge base. Use 'create-mem' for simple notes and 'mem-it' when AI processing is needed for automatic organization."
   },
   "preferences": [
     {
