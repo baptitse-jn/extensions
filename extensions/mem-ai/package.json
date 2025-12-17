@@ -34,38 +34,12 @@
     {
       "name": "create-mem",
       "title": "Create Mem",
-      "description": "Create a simple note in Mem",
-      "input": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "string",
-            "description": "The content of the note to create"
-          }
-        },
-        "required": ["content"]
-      },
-      "confirmation": false
+      "description": "Create a simple note in Mem"
     },
     {
       "name": "mem-it",
       "title": "Mem It",
-      "description": "Send content to Mem with AI processing for automatic organization",
-      "input": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "string",
-            "description": "The content to send to Mem"
-          },
-          "instructions": {
-            "type": "string",
-            "description": "Optional instructions for AI processing"
-          }
-        },
-        "required": ["content"]
-      },
-      "confirmation": false
+      "description": "Send content to Mem with AI processing for automatic organization"
     }
   ],
   "ai": {
