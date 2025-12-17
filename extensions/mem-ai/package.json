@@ -4,8 +4,11 @@
   "title": "Mem AI",
   "description": "Capture notes, ideas and knowledge to your Mem AI Second Brain",
   "icon": "extension-icon.png",
-  "author": "music-lover",
-  "categories": ["Productivity", "Applications"],
+  "author": "baptiste-jn",
+  "categories": [
+    "Productivity",
+    "Applications"
+  ],
   "license": "MIT",
   "commands": [
     {
@@ -43,7 +46,9 @@
             "description": "The content of the note to create"
           }
         },
-        "required": ["content"]
+        "required": [
+          "content"
+        ]
       },
       "confirmation": false
     },
@@ -63,7 +68,9 @@
             "description": "Optional instructions for AI processing"
           }
         },
-        "required": ["content"]
+        "required": [
+          "content"
+        ]
       },
       "confirmation": false
     }
