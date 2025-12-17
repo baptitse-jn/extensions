@@ -27,19 +27,16 @@ export function getPreferences(): Preferences {
  * Mem It - Send content to Mem with AI processing
  * The content will be automatically organized, tagged, and structured
  */
-export async function memIt(
-  content: string,
-  instructions?: string
-): Promise<MemItResponse> {
+export async function memIt(content: string, instructions?: string): Promise<MemItResponse> {
   const { apiKey, defaultInstructions } = getPreferences();
-  
+
   const finalInstructions = instructions || defaultInstructions || undefined;
 
   const response = await fetch("https://api.mem.ai/v2/mem-it", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       input: content,
@@ -66,7 +63,7 @@ export async function createMem(content: string): Promise<CreateMemResponse> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `ApiAccessToken ${apiKey}`,
+      Authorization: `ApiAccessToken ${apiKey}`,
     },
     body: JSON.stringify({
       content,
@@ -84,17 +81,14 @@ export async function createMem(content: string): Promise<CreateMemResponse> {
 /**
  * Append content to an existing mem
  */
-export async function appendToMem(
-  memId: string,
-  content: string
-): Promise<void> {
+export async function appendToMem(memId: string, content: string): Promise<void> {
   const { apiKey } = getPreferences();
 
   const response = await fetch(`https://api.mem.ai/v0/mems/${memId}/append`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `ApiAccessToken ${apiKey}`,
+      Authorization: `ApiAccessToken ${apiKey}`,
     },
     body: JSON.stringify({
       content,
