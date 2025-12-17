@@ -1,5 +1,5 @@
 import {
-  getSelectedText,
+  Clipboard,
   showToast,
   Toast,
   getPreferenceValues,
@@ -10,17 +10,17 @@ interface Preferences {
   apiKey: string;
 }
 
-export default async function CaptureSelection() {
+export default async function CaptureClipboard() {
   const { apiKey } = getPreferenceValues<Preferences>();
 
   try {
-    const selectedText = await getSelectedText();
+    const clipboardContent = await Clipboard.readText();
 
-    if (!selectedText || !selectedText.trim()) {
+    if (!clipboardContent || !clipboardContent.trim()) {
       await showToast({
         style: Toast.Style.Failure,
         title: "Error",
-        message: "No text selected",
+        message: "Clipboard is empty",
       });
       return;
     }
@@ -32,7 +32,7 @@ export default async function CaptureSelection() {
         Authorization: `ApiAccessToken ${apiKey}`,
       },
       body: JSON.stringify({
-        content: selectedText,
+        content: clipboardContent,
       }),
     });
 
@@ -40,13 +40,12 @@ export default async function CaptureSelection() {
       throw new Error(`API Error: ${response.status}`);
     }
 
-    await showHUD("✅ Selection saved to Mem");
+    await showHUD("✅ Clipboard saved to Mem");
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
       title: "Error",
-      message:
-        error instanceof Error ? error.message : "Unable to capture selection",
+      message: error instanceof Error ? error.message : "Failed to save",
     });
   }
 }
