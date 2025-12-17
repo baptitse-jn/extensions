@@ -4,11 +4,14 @@ interface Preferences {
   apiKey: string;
 }
 
-interface Input {
+type Input = {
+  /**
+   * The content of the note to create
+   */
   content: string;
-}
+};
 
-export default async function createMem(input: Input) {
+export default async function tool(input: Input) {
   const { apiKey } = getPreferenceValues<Preferences>();
 
   const response = await fetch("https://api.mem.ai/v0/mems", {
