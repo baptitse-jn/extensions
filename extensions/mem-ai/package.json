@@ -1,28 +1,32 @@
 {
+  "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "mem-ai",
   "title": "Mem AI",
-  "description": "Capture notes, ideas and knowledge to your Mem AI Second Brain. Use @mem in Raycast AI to interact with your knowledge base.",
+  "description": "Capture notes, ideas and knowledge to your Mem AI Second Brain",
   "icon": "extension-icon.png",
-  "author": "baptiste",
-  "categories": ["Productivity", "AI"],
+  "author": "music-lover",
+  "categories": ["Productivity", "Applications"],
   "license": "MIT",
   "commands": [
     {
       "name": "quick-capture",
       "title": "Quick Capture to Mem",
-      "description": "Quickly capture a note to your Mem",
+      "subtitle": "Mem AI",
+      "description": "Quickly capture a note to Mem with optional AI processing",
       "mode": "view"
     },
     {
       "name": "capture-clipboard",
       "title": "Capture Clipboard to Mem",
-      "description": "Send clipboard content to Mem with AI processing",
+      "subtitle": "Mem AI",
+      "description": "Send clipboard content directly to Mem",
       "mode": "no-view"
     },
     {
       "name": "capture-selection",
       "title": "Capture Selection to Mem",
-      "description": "Send selected text to Mem",
+      "subtitle": "Mem AI",
+      "description": "Send selected text directly to Mem",
       "mode": "no-view"
     }
   ],
@@ -30,67 +34,86 @@
     {
       "name": "create-mem",
       "title": "Create Mem",
-      "description": "Create a new note in Mem with the given content. Use this to save ideas, notes, information, or any text the user wants to remember."
+      "description": "Create a simple note in Mem",
+      "input": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "The content of the note to create"
+          }
+        },
+        "required": ["content"]
+      },
+      "confirmation": false
     },
     {
       "name": "mem-it",
       "title": "Mem It",
-      "description": "Send content to Mem with AI processing. Mem will automatically organize, tag, and structure the content intelligently."
+      "description": "Send content to Mem with AI processing for automatic organization",
+      "input": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "The content to send to Mem"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Optional instructions for AI processing"
+          }
+        },
+        "required": ["content"]
+      },
+      "confirmation": false
     }
   ],
+  "ai": {
+    "instructions": "Use this extension to save notes and information to the user's Mem AI knowledge base. Use 'create-mem' for simple notes and 'mem-it' when AI processing is needed for automatic organization.",
+    "evals": [
+      {
+        "input": "@mem Save this note: Meeting with John tomorrow at 2pm",
+        "expected": [
+          {
+            "callsTool": "mem-it"
+          }
+        ],
+        "mocks": {
+          "mem-it": {
+            "result": "success"
+          }
+        }
+      }
+    ]
+  },
   "preferences": [
     {
       "name": "apiKey",
       "title": "Mem API Key",
-      "description": "Your Mem API key. Get it from Mem Settings > Flows > API",
+      "description": "Your Mem API key (get it from mem.ai/flows/api)",
       "type": "password",
       "required": true
-    },
-    {
-      "name": "defaultInstructions",
-      "title": "Default Instructions",
-      "description": "Default instructions for Mem AI when processing your notes (e.g., 'Tag with #inbox and summarize')",
-      "type": "textfield",
-      "required": false,
-      "default": ""
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.83.0",
-    "@raycast/utils": "^1.17.0",
+    "@raycast/api": "^1.93.0",
+    "@raycast/utils": "^1.18.0",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.11",
-    "@types/node": "22.5.4",
-    "@types/react": "18.3.11",
+    "@types/node": "22.13.9",
+    "@types/react": "19.0.10",
     "eslint": "^8.57.0",
-    "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
   },
   "scripts": {
     "build": "ray build --skip-types -e dist -o dist",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
-    "prepublishOnly": "echo \"Error: no publish\" && exit 1",
+    "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
     "publish": "npx @raycast/api@latest publish"
-  },
-  "ai": {
-    "instructions": "Tu es un assistant pour Mem AI, une application de prise de notes et de gestion des connaissances. Quand l'utilisateur veut sauvegarder quelque chose, utilise le tool 'mem-it' pour les contenus qui nécessitent un traitement IA (organisation automatique), ou 'create-mem' pour les notes simples. Réponds toujours en confirmant ce qui a été sauvegardé.",
-    "evals": [
-      {
-        "input": "@mem sauvegarde cette idée : utiliser l'IA pour automatiser les rapports",
-        "expected": "Doit créer une note dans Mem avec l'idée sur l'automatisation des rapports"
-      },
-      {
-        "input": "@mem note à retenir : réunion avec le client demain à 14h",
-        "expected": "Doit créer une note avec les détails de la réunion"
-      },
-      {
-        "input": "@mem ajoute à ma base de connaissances : Les 3 piliers du PKM sont capture, organize, share",
-        "expected": "Doit utiliser mem-it pour ajouter cette information avec traitement IA"
-      }
-    ]
   }
 }
