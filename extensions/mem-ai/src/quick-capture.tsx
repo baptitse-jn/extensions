@@ -1,38 +1,34 @@
 import {
-  Action,
-  ActionPanel,
   Form,
+  ActionPanel,
+  Action,
   showToast,
   Toast,
+  getPreferenceValues,
   popToRoot,
-  openExtensionPreferences,
 } from "@raycast/api";
 import { useState } from "react";
-import { memIt, createMem, getPreferences } from "./lib/mem-api";
+
+interface Preferences {
+  apiKey: string;
+}
+
+interface FormValues {
+  content: string;
+  useAI: boolean;
+  instructions?: string;
+}
 
 export default function QuickCapture() {
-  const [content, setContent] = useState("");
-  const [instructions, setInstructions] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [useAI, setUseAI] = useState(true);
+  const { apiKey } = getPreferenceValues<Preferences>();
 
-  async function handleSubmit() {
-    if (!content.trim()) {
+  async function handleSubmit(values: FormValues) {
+    if (!values.content.trim()) {
       showToast({
         style: Toast.Style.Failure,
-        title: "Contenu vide",
-        message: "Entre du contenu à sauvegarder",
-      });
-      return;
-    }
-
-    // Check API key
-    const { apiKey } = getPreferences();
-    if (!apiKey) {
-      showToast({
-        style: Toast.Style.Failure,
-        title: "API Key manquante",
-        message: "Configure ta clé API Mem dans les préférences",
+        title: "Error",
+        message: "Content cannot be empty",
       });
       return;
     }
@@ -40,28 +36,52 @@ export default function QuickCapture() {
     setIsLoading(true);
 
     try {
-      if (useAI) {
-        const result = await memIt(content, instructions || undefined);
-        showToast({
-          style: Toast.Style.Success,
-          title: "✨ Sauvegardé dans Mem",
-          message: "Contenu traité par l'IA et organisé",
+      let response;
+
+      if (values.useAI) {
+        // Use Mem It API (v2) with AI
+        response = await fetch("https://api.mem.ai/v2/mem-it", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `ApiAccessToken ${apiKey}`,
+          },
+          body: JSON.stringify({
+            content: values.content,
+            instructions: values.instructions || undefined,
+          }),
         });
       } else {
-        await createMem(content);
-        showToast({
-          style: Toast.Style.Success,
-          title: "📝 Note créée",
-          message: "Contenu sauvegardé dans Mem",
+        // Use simple API (v0) without AI
+        response = await fetch("https://api.mem.ai/v0/mems", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `ApiAccessToken ${apiKey}`,
+          },
+          body: JSON.stringify({
+            content: values.content,
+          }),
         });
       }
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errorData}`);
+      }
+
+      showToast({
+        style: Toast.Style.Success,
+        title: "Success",
+        message: values.useAI ? "Note saved with AI processing" : "Note saved to Mem",
+      });
+
       popToRoot();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
       showToast({
         style: Toast.Style.Failure,
-        title: "Erreur",
-        message: errorMessage,
+        title: "Error",
+        message: error instanceof Error ? error.message : "Failed to save note",
       });
     } finally {
       setIsLoading(false);
@@ -73,50 +93,27 @@ export default function QuickCapture() {
       isLoading={isLoading}
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            title="Sauvegarder dans Mem"
-            onSubmit={handleSubmit}
-          />
-          <Action
-            title="Ouvrir les préférences"
-            onAction={openExtensionPreferences}
-            shortcut={{ modifiers: ["cmd"], key: "," }}
-          />
+          <Action.SubmitForm title="Save to Mem" onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
       <Form.TextArea
         id="content"
-        title="Contenu"
-        placeholder="Écris ta note, idée, ou information à sauvegarder..."
-        value={content}
-        onChange={setContent}
+        title="Content"
+        placeholder="Write your note here..."
         enableMarkdown
       />
-
-      <Form.Separator />
-
       <Form.Checkbox
         id="useAI"
-        label="Utiliser l'IA Mem"
-        info="L'IA organisera, taguera et structurera automatiquement ton contenu"
-        value={useAI}
-        onChange={setUseAI}
+        label="Use AI Processing"
+        info="Mem AI will automatically organize and link your note"
+        defaultValue={true}
       />
-
-      {useAI && (
-        <Form.TextField
-          id="instructions"
-          title="Instructions IA (optionnel)"
-          placeholder="Ex: Classe sous 'Projets/My Wai' et résume"
-          value={instructions}
-          onChange={setInstructions}
-        />
-      )}
-
-      <Form.Description
-        title="💡 Astuce"
-        text="Active 'Utiliser l'IA Mem' pour que Mem organise automatiquement tes notes avec des tags, des liens et une structure intelligente."
+      <Form.TextField
+        id="instructions"
+        title="Instructions (optional)"
+        placeholder="e.g., Add to my reading list"
+        info="Specific instructions for Mem AI"
       />
     </Form>
   );
