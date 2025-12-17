@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="100" fill="#7C3AED"/>
+  <g transform="translate(80, 80)">
+    <!-- Brain/Memory icon -->
+    <path d="M176 48c-44.2 0-80 35.8-80 80v16c0 8.8-7.2 16-16 16s-16-7.2-16-16v-16c0-61.9 50.1-112 112-112s112 50.1 112 112v16c0 8.8-7.2 16-16 16s-16-7.2-16-16v-16c0-44.2-35.8-80-80-80z" fill="white"/>
+    <path d="M176 96c-17.7 0-32 14.3-32 32v16c0 8.8-7.2 16-16 16s-16-7.2-16-16v-16c0-35.3 28.7-64 64-64s64 28.7 64 64v16c0 8.8-7.2 16-16 16s-16-7.2-16-16v-16c0-17.7-14.3-32-32-32z" fill="white" fill-opacity="0.8"/>
+    <circle cx="176" cy="200" r="40" fill="white"/>
+    <circle cx="96" cy="240" r="24" fill="white" fill-opacity="0.9"/>
+    <circle cx="256" cy="240" r="24" fill="white" fill-opacity="0.9"/>
+    <circle cx="136" cy="280" r="20" fill="white" fill-opacity="0.7"/>
+    <circle cx="216" cy="280" r="20" fill="white" fill-opacity="0.7"/>
+    <path d="M176 240v60" stroke="white" stroke-width="8" stroke-linecap="round"/>
+    <path d="M120 240l40 40" stroke="white" stroke-width="6" stroke-linecap="round" stroke-opacity="0.8"/>
+    <path d="M232 240l-40 40" stroke="white" stroke-width="6" stroke-linecap="round" stroke-opacity="0.8"/>
+  </g>
+</svg>
