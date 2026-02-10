@@ -5,7 +5,10 @@
   "description": "View and manage MCP (Model Context Protocol) servers running on your Mac. See RAM usage and kill processes.",
   "icon": "extension-icon.png",
   "author": "baptiste-jn",
-  "categories": ["Developer Tools", "System"],
+  "categories": [
+    "Developer Tools",
+    "System"
+  ],
   "license": "MIT",
   "commands": [
     {
@@ -22,7 +25,7 @@
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.11",
     "@types/node": "~20.8.10",
-    "@types/react": "^18.2.27",
+    "@types/react": "^19.2.13",
     "eslint": "^8.57.0",
     "prettier": "^3.3.3",
     "typescript": "^5.4.5"
